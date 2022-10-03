@@ -18,6 +18,7 @@ test.only("validate sign in", async ({ page }) => {
   await expect(page).toHaveTitle("LoginPage Practise | Rahul Shetty Academy");
   await page.locator("#username").type("rahulshettyacademy");
   await page.locator("#password").type("learnin");
+  console.log("LoginPagePractise");
 
   await page.locator("#signInBtn").click();
   console.log(await page.locator("div[style='display: block;']").textContent());
