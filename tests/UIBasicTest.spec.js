@@ -20,6 +20,7 @@ test.only("validate sign in", async ({ page }) => {
   await page.goto("https://rahulshettyacademy.com/loginpagePractise/");
   const username = page.locator("#username");
   const signIn = page.locator("#signInBtn");
+  const cardTitles = page.locator(".card-body .card-title a");
   await expect(page).toHaveTitle("LoginPage Practise | Rahul Shetty Academy");
   await username.type("rahulshetty");
   await page.locator("#password").type("learning");
@@ -32,8 +33,10 @@ test.only("validate sign in", async ({ page }) => {
   await username.fill("");
   await username.type("rahulshettyacademy");
   await signIn.click();
-
-  console.log(
-    await page.locator(".card-body .card-title a").nth(0).textContent()
-  );
+  await page.waitForNavigation();
+  const titles = await cardTitles.allTextContents();
+  console.log(titles);
+  console.log(titles[0]);
+  console.log(await cardTitles.nth(0).textContent());
+  await expect(cardTitles.nth(0)).toContainText("iphone X");
 });
