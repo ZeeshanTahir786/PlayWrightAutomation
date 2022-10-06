@@ -13,7 +13,7 @@ test("Page Playwright test", async ({ page }) => {
   await page.goto("https://rahulshettyacademy.com/loginpagePractise/");
 });
 
-test.only("validate sign in", async ({ page }) => {
+test("validate sign in", async ({ page }) => {
   // page.setViewportSize({ width: 1280, height: 1200 });
   // do stuff then resize to a particular device size
   page.setViewportSize(devices["Desktop Chrome"].viewport);
@@ -39,4 +39,26 @@ test.only("validate sign in", async ({ page }) => {
   console.log(titles[0]);
   console.log(await cardTitles.nth(0).textContent());
   await expect(cardTitles.nth(0)).toContainText("iphone X");
+});
+
+test("Assertions", async ({ page }) => {
+  page.goto("https://rahulshettyacademy.com/loginpagePractise/");
+  const username = page.locator("#username");
+  const signIn = page.locator("#signInBtn");
+  const password = page.locator("#password");
+
+  await username.fill("rahulshettyacademy");
+  await password.type("learning");
+
+  await page.locator("select.form-control").selectOption("consult");
+  await page.locator(".radiotextsty").last().click();
+  await page.locator("#okayBtn").click();
+  await page.pause();
+  // await signIn.click();
+});
+
+test("w3 school", async ({ page }) => {
+  page.goto("https://www.w3schools.com/default.asp");
+  await page.pause();
+  // await signIn.click();
 });
