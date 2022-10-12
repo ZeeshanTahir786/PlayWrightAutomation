@@ -20,7 +20,7 @@ test.describe("Start", () => {
     await page.goto("https://rahulshettyacademy.com/loginpagePractise/");
   });
 
-  test("validate sign in", async ({ page }) => {
+  test.only("validate sign in", async ({ page }) => {
     // page.setViewportSize({ width: 1280, height: 1200 });
     // do stuff then resize to a particular device size
     // page.setViewportSize(devices["Desktop Chrome"].viewport);
@@ -72,7 +72,7 @@ test.describe("Start", () => {
     // await signIn.click();
   });
 
-  test.only("parent child page", async ({ browser }) => {
+  test("parent child page", async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.goto("https://www.rahulshettyacademy.com/loginpagePractise/");

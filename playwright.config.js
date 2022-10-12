@@ -42,6 +42,8 @@ const config = {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
     headless: false,
+    screenshot: "on",
+
     // browserName: "chromium",
     // viewport: null,
     // launchOptions: {
@@ -59,6 +61,8 @@ const config = {
         launchOptions: {
           args: ["--start-maximized"],
         },
+        trace: "retain-on-failure",
+        screenshot: "on",
       },
     },
 
