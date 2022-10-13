@@ -23,6 +23,7 @@ test.describe("E2E playright", () => {
     await loginBtn.click();
     await page.waitForNavigation();
     const titles = await cardTitles.allTextContents();
+    const cart = page.locator("button[routerlink*='/cart']");
     console.log(titles);
     await expect(page).toHaveURL(
       "https://rahulshettyacademy.com/client/dashboard/dash"
@@ -35,6 +36,12 @@ test.describe("E2E playright", () => {
         break;
       }
     }
-    await page.pause();
+    await cart.click();
+    const abc = page.locator("div li");
+    await abc.waitFor();
+    const bool = await page
+      .locator("h3:has-text('adidas original')")
+      .isVisible();
+    expect(bool).toBeTruthy();
   });
 });
