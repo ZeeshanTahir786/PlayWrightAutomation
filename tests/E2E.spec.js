@@ -38,7 +38,7 @@ test.describe("E2E playright", () => {
     }
     await cart.click();
     const abc = page.locator("div li");
-    await abc.waitFor();
+    await abc.first().waitFor();
     const bool = await page
       .locator("h3:has-text('adidas original')")
       .isVisible();
