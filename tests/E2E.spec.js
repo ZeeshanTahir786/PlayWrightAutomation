@@ -10,6 +10,7 @@ test.describe("E2E playright", () => {
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.goto("https://rahulshettyacademy.com/client");
+    const userEmail = "abc+22@gmail.com";
 
     const email = page.locator("#userEmail");
     const password = page.locator("#userPassword");
@@ -18,7 +19,7 @@ test.describe("E2E playright", () => {
     const cardBody = page.locator(".card-body");
     const prodTitle = "adidas original";
 
-    await email.type("abc+22@gmail.com");
+    await email.type(userEmail);
     await password.type("Nisum@123");
     await loginBtn.click();
     await page.waitForNavigation();
@@ -43,5 +44,60 @@ test.describe("E2E playright", () => {
       .locator("h3:has-text('adidas original')")
       .isVisible();
     expect(bool).toBeTruthy();
+    await page.locator("button[type='button']").last().click();
+    await page
+      .locator("input[placeholder='Select Country']")
+      .type("pa", { delay: 100 });
+
+    const dropdown = page.locator(".ta-results");
+    await dropdown.waitFor();
+
+    const optionsCount = await dropdown.locator("button").count();
+    for (let i = 0; i < optionsCount; ++i) {
+      let text = await dropdown.locator("button").nth(i).textContent();
+      if (text === " Pakistan") {
+        dropdown.locator("button").nth(i).click();
+        break;
+      }
+    }
+
+    await expect(page.locator(".user__name label[type='text']")).toHaveText(
+      userEmail
+    );
+
+    await page.locator(".action__submit ").click();
+
+    expect(page.locator(".hero-primary")).toHaveText(
+      " Thankyou for the order. "
+    );
+    const orderId = await page
+      .locator(".em-spacer-1 .ng-star-inserted")
+      .textContent();
+
+    const id = orderId.split(" ")[2];
+    console.log(id);
+
+    await page.locator(".btn-custom[routerlink='/dashboard/myorders']").click();
+
+    const orderIDsList = await page.locator("tbody tr th");
+    const orderCount = await orderIDsList.count();
+    console.log("countttt", orderCount);
+    for (let i = 0; i < orderCount; ++i) {
+      const ordr = await orderIDsList.nth(i).textContent();
+      if (ordr === id) {
+        await page
+          .locator("tbody tr td button[class='btn btn-primary']")
+          .nth(i)
+          .click();
+      }
+    }
+    await expect(page.locator(".row .col-text.-main")).toHaveText(id);
+    await expect(
+      await page.locator(".address p:nth-child(2)").first()
+    ).toHaveText(userEmail);
+    await expect(
+      await page.locator(".address p:nth-child(2)").last()
+    ).toHaveText(userEmail);
+    await page.pause();
   });
 });
