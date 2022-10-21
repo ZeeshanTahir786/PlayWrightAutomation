@@ -14,5 +14,7 @@ test.describe("Hide and show", () => {
     await expect(page.locator("#displayed-text")).toBeVisible();
     await page.locator("#hide-textbox").click();
     await expect(page.locator("#displayed-text")).toBeHidden();
+
+    await page.locator("#name").type("Hafiz");
   });
 });
