@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect, request } = require("@playwright/test");
 test.describe("E2E playright", () => {
   test.use({
     viewport: {
@@ -6,9 +6,33 @@ test.describe("E2E playright", () => {
       height: 1080,
     },
   });
+  let token;
+  const loginPayload = {
+    userEmail: "abc+22@gmail.com",
+    userPassword: "Nisum@123",
+  };
+
+  test.beforeAll(async ({ browser }) => {
+    const apiContext = await request.newContext();
+    const loginResponse = await apiContext.post(
+      "https://rahulshettyacademy.com/api/ecom/auth/login",
+      {
+        data: loginPayload,
+      }
+    );
+    expect(loginResponse.ok()).toBeTruthy();
+    const loginResponseJson = await loginResponse.json();
+    token = await loginResponseJson.token;
+    console.log(token);
+  });
   test("Client App Login", async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
+
+    page.addInitScript((val) => {
+      window.localStorage.setItem("token", val);
+    }, token);
+
     await page.goto("https://rahulshettyacademy.com/client");
     const userEmail = "abc+22@gmail.com";
 
@@ -19,10 +43,10 @@ test.describe("E2E playright", () => {
     const cardBody = page.locator(".card-body");
     const prodTitle = "adidas original";
 
-    await email.type(userEmail);
-    await password.type("Nisum@123");
-    await loginBtn.click();
-    await page.waitForNavigation();
+    // await email.type(userEmail);
+    // await password.type("Nisum@123");
+    // await loginBtn.click();
+    // await page.waitForNavigation();
     const titles = await cardTitles.allTextContents();
     const cart = page.locator("button[routerlink*='/cart']");
     console.log(titles);
@@ -75,10 +99,10 @@ test.describe("E2E playright", () => {
       .textContent();
 
     const id = orderId.split(" ")[2];
-    console.log(id);
+    console.log("iddd", id);
 
     await page.locator(".btn-custom[routerlink='/dashboard/myorders']").click();
-
+    await page.locator("tbody").waitFor();
     const orderIDsList = await page.locator("tbody tr th");
     const orderCount = await orderIDsList.count();
     console.log("countttt", orderCount);
