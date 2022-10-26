@@ -1,4 +1,5 @@
 const { test, expect, request } = require("@playwright/test");
+const APIUtils = require("./Utils/APIUtils");
 test.describe("E2E playright", () => {
   test.use({
     viewport: {
@@ -6,13 +7,13 @@ test.describe("E2E playright", () => {
       height: 1080,
     },
   });
-  let token;
   let orderId;
+  let response;
   const loginPayload = {
     userEmail: "abc+22@gmail.com",
     userPassword: "Nisum@123",
   };
-  const ordeerPayload = {
+  const orderPayload = {
     orders: [
       { country: "Pakistan", productOrderedId: "6262e95ae26b7e1a10e89bf0" },
     ],
@@ -20,31 +21,8 @@ test.describe("E2E playright", () => {
 
   test.beforeAll(async ({ browser }) => {
     const apiContext = await request.newContext();
-    const loginResponse = await apiContext.post(
-      "https://rahulshettyacademy.com/api/ecom/auth/login",
-      {
-        data: loginPayload,
-      }
-    );
-    expect(loginResponse.ok()).toBeTruthy();
-    const loginResponseJson = await loginResponse.json();
-    token = await loginResponseJson.token;
-    console.log(token);
-
-    //
-
-    const createOrder = await apiContext.post(
-      "https://rahulshettyacademy.com/api/ecom/order/create-order",
-      {
-        data: ordeerPayload,
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const orderResponse = await createOrder.json();
-    orderId = orderResponse.orders[0];
+    const apiUtils = new APIUtils(apiContext, loginPayload);
+    response = await apiUtils.createOrder(orderPayload);
   });
   test("Client App Login", async ({ browser }) => {
     const context = await browser.newContext();
@@ -52,7 +30,7 @@ test.describe("E2E playright", () => {
 
     page.addInitScript((val) => {
       window.localStorage.setItem("token", val);
-    }, token);
+    }, response?.token);
 
     await page.goto("https://rahulshettyacademy.com/client");
     const userEmail = "abc+22@gmail.com";
@@ -129,7 +107,7 @@ test.describe("E2E playright", () => {
     console.log("countttt", orderCount);
     for (let i = 0; i < orderCount; ++i) {
       const ordr = await orderIDsList.nth(i).textContent();
-      if (ordr === orderId) {
+      if (ordr === response?.orderId) {
         await page
           .locator("tbody tr td button[class='btn btn-primary']")
           .nth(i)
@@ -137,7 +115,9 @@ test.describe("E2E playright", () => {
       }
     }
     await page.locator(".email-container").waitFor();
-    await expect(page.locator(".row .col-text.-main")).toHaveText(orderId);
+    await expect(page.locator(".row .col-text.-main")).toHaveText(
+      response?.orderId
+    );
     await expect(
       await page.locator(".address p:nth-child(2)").first()
     ).toHaveText(userEmail);
