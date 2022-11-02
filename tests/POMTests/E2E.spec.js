@@ -2,6 +2,9 @@ const { test, expect, request } = require("@playwright/test");
 const CartPage = require("../POM/CartPage");
 const Dashboard = require("../POM/Dashboard");
 const LoginPage = require("../POM/LoginPage");
+const OrderDetailsPage = require("../POM/OrderDetailsPage");
+const OrdersPage = require("../POM/OrdersPage");
+const PaymentMethodPage = require("../POM/PaymentMethodPage");
 test.describe("E2E playright", () => {
   test.use({
     viewport: {
@@ -33,59 +36,23 @@ test.describe("E2E playright", () => {
     const bool = await cartPage.verifyAddedProduct();
     expect(bool).toBeTruthy();
     await cartPage.gotoCheckoutpage();
-    // await page
-    //   .locator("input[placeholder='Select Country']")
-    //   .type("pa", { delay: 100 });
 
-    // const dropdown = page.locator(".ta-results");
-    // await dropdown.waitFor();
+    const paymentMethodPage = new PaymentMethodPage(page);
+    const email = await paymentMethodPage.selectCountry();
+    await expect(email).toHaveText(userEmail);
+    await paymentMethodPage.submitDetails();
 
-    // const optionsCount = await dropdown.locator("button").count();
-    // for (let i = 0; i < optionsCount; ++i) {
-    //   let text = await dropdown.locator("button").nth(i).textContent();
-    //   if (text === " Pakistan") {
-    //     dropdown.locator("button").nth(i).click();
-    //     break;
-    //   }
-    // }
+    const orderDetailsPage = new OrderDetailsPage(page);
+    let id;
+    const order = orderDetailsPage.validateOrderDetails();
+    order.then((x) => {
+      id = x.id;
+      console.log("idddddd", x.id);
+    });
+    await orderDetailsPage.gotoOrderHistory();
 
-    // await expect(page.locator(".user__name label[type='text']")).toHaveText(
-    //   userEmail
-    // );
-
-    // await page.locator(".action__submit ").click();
-
-    // expect(page.locator(".hero-primary")).toHaveText(
-    //   " Thankyou for the order. "
-    // );
-    // const orderId = await page
-    //   .locator(".em-spacer-1 .ng-star-inserted")
-    //   .textContent();
-
-    // const id = orderId.split(" ")[2];
-    // console.log("iddd", id);
-
-    // await page.locator(".btn-custom[routerlink='/dashboard/myorders']").click();
-    // await page.locator("tbody").waitFor();
-    // const orderIDsList = await page.locator("tbody tr th");
-    // const orderCount = await orderIDsList.count();
-    // console.log("countttt", orderCount);
-    // for (let i = 0; i < orderCount; ++i) {
-    //   const ordr = await orderIDsList.nth(i).textContent();
-    //   if (ordr === id) {
-    //     await page
-    //       .locator("tbody tr td button[class='btn btn-primary']")
-    //       .nth(i)
-    //       .click();
-    //   }
-    // }
-    // await expect(page.locator(".row .col-text.-main")).toHaveText(id);
-    // await expect(
-    //   await page.locator(".address p:nth-child(2)").first()
-    // ).toHaveText(userEmail);
-    // await expect(
-    //   await page.locator(".address p:nth-child(2)").last()
-    // ).toHaveText(userEmail);
+    const ordersPage = new OrdersPage(page);
+    await ordersPage.searchProd(id, userEmail);
     await page.pause();
   });
 });
